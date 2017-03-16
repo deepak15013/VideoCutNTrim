@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import in.deepaksood.videocutntrim.utils.CommonUtils;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -20,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     Button btnBrowse;
     Button btnNext;
     TextView tvBrowse;
+
+    Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +47,15 @@ public class MainActivity extends AppCompatActivity {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Next", Toast.LENGTH_SHORT).show();
-                
+
+                if(uri != null && !uri.toString().contentEquals("")) {
+                    Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
+                    intent.putExtra(CommonUtils.videoLocationUri, uri.toString());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(MainActivity.this, "please select a video first", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
     }
@@ -52,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Uri uri = null;
             Log.v(TAG,"data: "+data);
             if(data != null) {
                 uri = data.getData();
