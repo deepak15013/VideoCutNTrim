@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">VideoCutNTrim</string>
+
+    <!-- Button Strings -->
+    <string name="btn_browse">Browse</string>
+    <string name="btn_next">Next</string>
 </resources>
