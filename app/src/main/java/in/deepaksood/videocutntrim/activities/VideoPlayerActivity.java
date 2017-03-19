@@ -1,4 +1,4 @@
-package in.deepaksood.videocutntrim;
+package in.deepaksood.videocutntrim.activities;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -8,7 +8,7 @@ import android.util.Log;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
-import in.deepaksood.videocutntrim.utils.CommonUtils;
+import in.deepaksood.videocutntrim.R;
 
 public class VideoPlayerActivity extends AppCompatActivity {
 
@@ -24,7 +24,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         vvPlayer = (VideoView) findViewById(R.id.vv_player);
 
         Intent intent = getIntent();
-        String uriString = intent.getStringExtra(CommonUtils.videoLocationUri);
+        String uriString = intent.getStringExtra(MainActivity.videoLocationUri);
         Log.v(TAG, "uriString: "+uriString);
 
         Uri uri = Uri.parse(uriString);

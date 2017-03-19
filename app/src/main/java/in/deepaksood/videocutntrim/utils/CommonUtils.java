@@ -6,6 +6,6 @@ package in.deepaksood.videocutntrim.utils;
 
 public class CommonUtils {
 
-    public static final String videoLocationUri = "VIDEO_LOCATION_URI";
+
 
 }
