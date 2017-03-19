@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,9 +17,11 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.appyvet.rangebar.RangeBar;
+import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
+import com.github.hiteshsondhi88.libffmpeg.FFmpegLoadBinaryResponseHandler;
+import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
-import java.net.URL;
-import java.util.Locale;
+import java.io.File;
 
 import in.deepaksood.videocutntrim.R;
 
@@ -27,8 +29,6 @@ public class MainActivity extends AppCompatActivity {
 
     // TAG for logging
     private static final String TAG = MainActivity.class.getSimpleName();
-
-//    public static final String videoLocationUri = "VIDEO_LOCATION_URI";
 
     // static variable to store the request code for browse functionality
     private static final int READ_REQUEST_CODE = 42;
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     // browse button for searching video from file explorer
     private Button btnBrowse;
-    private Button btnNext;
+    private Button btnCut;
     private TextView tvBrowse;
     private RangeBar rbView;
     private TextView tvStartTime;
@@ -49,7 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private int videoDurationSeconds;
 
     private Uri uri;
-    private volatile boolean threadRunning = true;
+    private int cutStartTimeSeconds;
+    private int cutEndTimeSeconds;
+    private FFmpeg ffmpeg;
+    private String uploadVideoName;
+    private String cutVideoName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         vvPlayer = (VideoView) findViewById(R.id.vv_player);
 
         tvBrowse = (TextView) findViewById(R.id.tv_browse);
-        btnNext = (Button) findViewById(R.id.btn_next);
+        btnCut = (Button) findViewById(R.id.btn_cut);
         btnBrowse = (Button) findViewById(R.id.btn_browse);
         btnBrowse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,20 +81,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnNext.setOnClickListener(new View.OnClickListener() {
+        btnCut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if(uri != null && !uri.toString().contentEquals("")) {
-                    /*Intent intent = new Intent(MainActivity.this, VideoPlayerActivity.class);
-                    intent.putExtra(MainActivity.videoLocationUri, uri.toString());
-                    startActivity(intent);*/
+                    Log.v(TAG,"cutStartTimeSeconds: "+cutStartTimeSeconds);
+                    Log.v(TAG,"cutEndTimeSeconds: "+cutEndTimeSeconds);
+                    cutVideo(cutStartTimeSeconds, cutEndTimeSeconds);
+
                 } else {
                     Toast.makeText(MainActivity.this, "please select a video first", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
+
+        loadFFMPEGBinary();
     }
 
     @Override
@@ -101,8 +107,9 @@ public class MainActivity extends AppCompatActivity {
                 uri = data.getData();
                 Log.i(TAG, "Uri: " + uri.toString());
                 tvBrowse.setText(uri.toString());
+                uploadVideoName = uri.getLastPathSegment();
+                Log.v(TAG,"uri.getLastPathSegment: "+uri.getLastPathSegment());
                 setVideoContainer();
-
             }
         } else {
             Log.v(TAG,"requestCode: "+requestCode);
@@ -139,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
                 vvPlayer.seekTo(leftPinIndex*1000);
+                cutStartTimeSeconds = leftPinIndex;
+                cutEndTimeSeconds = rightPinIndex;
                 tvStartTime.setText(convertTime(leftPinIndex));
                 tvEndTime.setText(convertTime(rightPinIndex));
             }
@@ -153,6 +162,55 @@ public class MainActivity extends AppCompatActivity {
         int mn = rem / 60;
         int sec = rem % 60;
         return String.format("%02d", hr) + ":" + String.format("%02d", mn) + ":" + String.format("%02d", sec);
+    }
+
+    private void loadFFMPEGBinary() {
+
+        if(ffmpeg == null) {
+            ffmpeg = FFmpeg.getInstance(this);
+        }
+        try {
+            ffmpeg.loadBinary(new FFmpegLoadBinaryResponseHandler() {
+                @Override
+                public void onFailure() {
+                    Log.v(TAG,"ffmpeg not supported");
+                    Toast.makeText(MainActivity.this, "Ffmpeg not supported", Toast.LENGTH_SHORT).show();
+                    MainActivity.this.finish();
+                }
+
+                @Override
+                public void onSuccess() {
+                    Log.v(TAG,"ffmpeg supported");
+                }
+
+                @Override
+                public void onStart() {
+
+                }
+
+                @Override
+                public void onFinish() {
+
+                }
+            });
+        } catch (FFmpegNotSupportedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void cutVideo(int cutStartTimeSeconds, int cutEndTimeSeconds) {
+
+        getSaveDirectory();
+
+
+    }
+
+    private void getSaveDirectory() {
+        File directoryFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        if(directoryFile.exists() && directoryFile.isDirectory()) {
+            cutVideoName = directoryFile.getAbsolutePath() + "/cropped_"+uploadVideoName+".mp4";
+            Log.v(TAG,"cutVideoName: "+cutVideoName);
+        }
     }
 
 }

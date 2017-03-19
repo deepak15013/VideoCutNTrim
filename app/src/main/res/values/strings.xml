@@ -3,7 +3,7 @@
 
     <!-- Button Strings -->
     <string name="btn_browse">Browse</string>
-    <string name="btn_next">Next</string>
+    <string name="btn_cut">Cut</string>
 
     <!-- TextView Strings -->
     <string name="tv_start_time">00:00:00</string>

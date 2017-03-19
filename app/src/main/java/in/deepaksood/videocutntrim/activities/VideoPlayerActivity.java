@@ -23,7 +23,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
         vvPlayer = (VideoView) findViewById(R.id.vv_player);
 
-        Intent intent = getIntent();
+        /*Intent intent = getIntent();
         String uriString = intent.getStringExtra(MainActivity.videoLocationUri);
         Log.v(TAG, "uriString: "+uriString);
 
@@ -34,6 +34,6 @@ public class VideoPlayerActivity extends AppCompatActivity {
         vvPlayer.setMediaController(mediaController);
         vvPlayer.setVideoURI(uri);
         vvPlayer.requestFocus();
-        vvPlayer.start();
+        vvPlayer.start();*/
     }
 }
