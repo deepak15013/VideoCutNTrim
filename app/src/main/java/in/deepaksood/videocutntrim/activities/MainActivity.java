@@ -1,10 +1,12 @@
 package in.deepaksood.videocutntrim.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -12,6 +14,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     // static variable to store the request code for browse functionality
     private static final int READ_REQUEST_CODE = 42;
+    private static final int MY_PERMISSION_WRITE_EXTERNAL_STORAGE = 44;
 
     // linear layout hosts both the seek bar and the timer TextView associated with it
     private LinearLayout llCutController;
@@ -70,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkAndGetRuntimePermissions();
 
         llCutController = (LinearLayout) findViewById(R.id.ll_cut_controller);
         llCutController.setVisibility(View.INVISIBLE);
@@ -112,6 +120,34 @@ public class MainActivity extends AppCompatActivity {
         progressDialog.setCancelable(false);
 
         loadFFMPEGBinary();
+    }
+
+    private void checkAndGetRuntimePermissions() {
+
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSION_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_WRITE_EXTERNAL_STORAGE: {
+                if (grantResults.length <= 0
+                        && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Storage Access Denied", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                else {
+                    Log.d(TAG, "Permission Available");
+                }
+            }
+        }
     }
 
     @Override
