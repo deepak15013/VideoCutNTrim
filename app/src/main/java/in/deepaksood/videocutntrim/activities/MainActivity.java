@@ -40,13 +40,20 @@ import java.util.Arrays;
 
 import in.deepaksood.videocutntrim.R;
 
+/**
+ * MainActivity where all the processing is happening
+ * Layout - activity_main.xml
+ *
+ * @author deepak
+ */
 public class MainActivity extends AppCompatActivity {
 
     // TAG for logging
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    // static variable to store the request code for browse functionality
+    // constant to store the request code for browse the video functionality
     private static final int READ_REQUEST_CODE = 42;
+    // constant for storing the runtime permission access for external storage media
     private static final int MY_PERMISSION_WRITE_EXTERNAL_STORAGE = 44;
 
     // linear layout hosts both the seek bar and the timer TextView associated with it
@@ -65,24 +72,43 @@ public class MainActivity extends AppCompatActivity {
     private int videoDurationSeconds;
 
     private Uri uri;
+
+    // the seek bar start position
     private int cutStartTimeSeconds;
+
+    // the seek bar end position
     private int cutEndTimeSeconds;
     private FFmpeg ffmpeg;
     private String uploadVideoName;
     private String cutVideoName;
+
+    // this variable will store the directory path where all the temporary work will be saved and then cleared
+    // first try to get the movies folder, if failed then create a folder in internal storage as VideoEditor
     private String directoryPath;
 
+    // Progress Dialog to show when the ffmpeg command is running
     private ProgressDialog progressDialog;
+
+    // holds the maximum number of commands that are goind to run
     int max_num_of_commands = 0;
+
+    // holds the commands that are completed in a given moment
     int num_of_commands_completed = 0;
 
+    /**
+     * This is the first state that activity enters
+     * @param savedInstanceState
+     *                          Used when the application is restarted
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /* First check for permission for external storage, Uses runtime permission */
         checkAndGetRuntimePermissions();
 
+        /* map all the layout items with respective objects and also set a listener for the buttons */
         llCutController = (LinearLayout) findViewById(R.id.ll_cut_controller);
         llCutController.setVisibility(View.INVISIBLE);
         tvStartTime = (TextView) findViewById(R.id.tv_start_time);
@@ -117,15 +143,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /* initializing progress bar, used when ffmpeg commands are run */
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Cutting file");
         progressDialog.setCancelable(false);
 
+        /* Loading ffmpeg binaries */
         loadFFMPEGBinary();
 
+        /* Initializing the directory path where all the temporary files will be stored and retrieved */
         directoryPath = checkDirectory();
     }
 
+    /**
+     * This function
+     *
+     * @return String
+     *              path to the directory created or existing for temporary file storage
+     */
     private String checkDirectory() {
         File directoryFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
         if(directoryFile.exists() && directoryFile.isDirectory()) {
@@ -149,6 +184,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *
+     */
     private void checkAndGetRuntimePermissions() {
 
         if(ContextCompat.checkSelfPermission(this,
