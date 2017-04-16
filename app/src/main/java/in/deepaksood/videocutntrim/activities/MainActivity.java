@@ -36,6 +36,7 @@ import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunnin
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
 import java.io.File;
+import java.util.Arrays;
 
 import in.deepaksood.videocutntrim.R;
 
@@ -69,8 +70,11 @@ public class MainActivity extends AppCompatActivity {
     private FFmpeg ffmpeg;
     private String uploadVideoName;
     private String cutVideoName;
+    private String directoryPath;
 
     private ProgressDialog progressDialog;
+    int max_num_of_commands = 0;
+    int num_of_commands_completed = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +108,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(uri != null && !uri.toString().contentEquals("")) {
-                    Log.v(TAG,"cutStartTimeSeconds: "+cutStartTimeSeconds);
-                    Log.v(TAG,"cutEndTimeSeconds: "+cutEndTimeSeconds);
                     cutVideo(cutStartTimeSeconds, cutEndTimeSeconds);
 
                 } else {
@@ -116,10 +118,35 @@ public class MainActivity extends AppCompatActivity {
         });
 
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(null);
+        progressDialog.setTitle("Cutting file");
         progressDialog.setCancelable(false);
 
         loadFFMPEGBinary();
+
+        directoryPath = checkDirectory();
+    }
+
+    private String checkDirectory() {
+        File directoryFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        if(directoryFile.exists() && directoryFile.isDirectory()) {
+            return directoryFile.getAbsolutePath();
+        } else {
+            File folder = new File(Environment.getExternalStorageDirectory() +
+                    File.separator + "VideoEditor");
+            boolean success = true;
+            if (!folder.exists()) {
+                success = folder.mkdirs();
+            }
+            if (success) {
+                // folder created or exists
+                return folder.getAbsolutePath();
+            } else {
+                // not able to create folder
+                Toast.makeText(this, "cannot create directory", Toast.LENGTH_SHORT).show();
+                finish();
+                return null;
+            }
+        }
     }
 
     private void checkAndGetRuntimePermissions() {
@@ -158,8 +185,6 @@ public class MainActivity extends AppCompatActivity {
                 uri = data.getData();
                 Log.i(TAG, "Uri: " + uri.toString());
                 tvBrowse.setText(uri.toString());
-                uploadVideoName = uri.getLastPathSegment();
-                Log.v(TAG,"uri.getLastPathSegment: "+uri.getLastPathSegment());
                 setVideoContainer();
             }
         } else {
@@ -236,12 +261,12 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onStart() {
-
+                    Log.v(TAG,"ffmpeg started");
                 }
 
                 @Override
                 public void onFinish() {
-
+                    Log.v(TAG,"ffmpeg finished");
                 }
             });
         } catch (FFmpegNotSupportedException e) {
@@ -250,25 +275,71 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void cutVideo(int cutStartTimeSeconds, int cutEndTimeSeconds) {
-        getSaveDirectory();
 
-        /*String videoLocation = getPath(MainActivity.this, uri);
+        String videoLocation = getPath(MainActivity.this, uri);
 
-        Log.d(TAG, "cutStartTimeSeconds: " + cutStartTimeSeconds);
-        Log.d(TAG, "cutEndTimeSeconds: " + cutEndTimeSeconds);
-        Log.d(TAG, "uri: " + uri);
-        Log.d(TAG, "videoLocation: " + videoLocation);
+        // ex - /storage/emulated/0/Movies/videoplayback.mp4
+        if(videoLocation != null) {
+            String[] splitted = videoLocation.split("/");
+            uploadVideoName = splitted[splitted.length-1];
+            Log.d(TAG,"UploadVideoName: "+uploadVideoName);
+        }
 
-        String[] complexCommand = {"-ss", "" + cutStartTimeSeconds / 1000, "-y", "-i", videoLocation, "-t", "" + (cutEndTimeSeconds - cutStartTimeSeconds) / 1000, "-s", "320x240", "-r", "15", "-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", cutVideoName};
+        if(getSaveDirectory()) {
+            String cut1Location = directoryPath + File.separator + "cut1.mp4";
+            String cut2Location = directoryPath + File.separator + "cut2.mp4";
+            String temp1Location = directoryPath + File.separator + "intermediate1.ts";
+            String temp2Location = directoryPath + File.separator + "intermediate2.ts";
 
-        execFFmpegBinary(complexCommand);*/
+            Log.d(TAG, "video start time: " + 0);
+            Log.d(TAG, "video end time: " + videoDurationSeconds);
+            Log.d(TAG, "cutStartTimeSeconds: " + cutStartTimeSeconds);
+            Log.d(TAG, "cutEndTimeSeconds: " + cutEndTimeSeconds);
+            Log.d(TAG, "uri: " + uri);
+            Log.d(TAG, "videoLocation: " + videoLocation);
+            Log.d(TAG, "cutVideoName: " + cutVideoName);
+
+            max_num_of_commands = 5;
+
+            // ffmpeg -ss 0 -i videoplayback.mp4 -t 20 -c copy cut1.mp4
+            String[] cmd_cut_1 = {"-ss", "" + 0, "-i", videoLocation, "-t", "" + cutStartTimeSeconds, "-c", "copy", cut1Location};
+            System.out.println("cmd_cut_1: " + Arrays.toString(cmd_cut_1));
+            execFFmpegBinary(cmd_cut_1);
+
+            // ffmpeg -ss 40 -i videoplayback.mp4 -t 235 -c copy cut2.mp4
+            String[] cmd_cut_2 = {"-ss", "" + cutEndTimeSeconds, "-i", videoLocation, "-t", "" + videoDurationSeconds, "-c", "copy", cut2Location};
+            System.out.println("cmd_cut_2: " + Arrays.toString(cmd_cut_2));
+            execFFmpegBinary(cmd_cut_2);
+
+            // ffmpeg -i cut1.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts intermediate1.ts
+            String[] cmd_convert_1 = {"-i", cut1Location, "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "mpegts", temp1Location};
+            System.out.println("cmd_convert_1: " + Arrays.toString(cmd_convert_1));
+            execFFmpegBinary(cmd_convert_1);
+
+            // ffmpeg -i cut2.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts intermediate2.ts
+            String[] cmd_convert_2 = {"-i", cut2Location, "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "mpegts", temp2Location};
+            System.out.println("cmd_convert_2: " + Arrays.toString(cmd_convert_2));
+            execFFmpegBinary(cmd_convert_2);
+
+            // ffmpeg -i "concat:intermediate1.ts|intermediate2.ts" -c copy -bsf:a aac_adtstoasc final.mp4
+            String[] cmd_join = {"-i", "concat:"+temp1Location+"|"+temp2Location, "-c", "copy", "-bsf:a", "aac_adtstoasc", cutVideoName};
+            System.out.println("cmd_join: " + Arrays.toString(cmd_join));
+            execFFmpegBinary(cmd_join);
+        } else {
+            Toast.makeText(this, "VideoName not fetched", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void getSaveDirectory() {
-        File directoryFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-        if(directoryFile.exists() && directoryFile.isDirectory()) {
-            cutVideoName = directoryFile.getAbsolutePath() + "/cropped_"+uploadVideoName+".mp4";
-            Log.v(TAG,"cutVideoName: "+cutVideoName);
+    private boolean getSaveDirectory() {
+        if(uploadVideoName != null && !uploadVideoName.equals("")) {
+            File directoryFile = new File(directoryPath);
+            if(directoryFile.exists() && directoryFile.isDirectory()) {
+                cutVideoName = directoryFile.getAbsolutePath() + "/cropped_"+uploadVideoName;
+                Log.v(TAG,"cutVideoName: "+cutVideoName);
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -288,27 +359,28 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onProgress(String s) {
-                    Log.d(TAG, "Started command : ffmpeg " + command);
-                    progressDialog.setMessage("progress : " + s);
                     Log.d(TAG, "progress : " + s);
                 }
 
                 @Override
                 public void onStart() {
-                    Log.d(TAG, "Started command : ffmpeg " + command);
+                    Log.d(TAG, "Started command");
                     progressDialog.setMessage("Processing...");
                     progressDialog.show();
                 }
 
                 @Override
                 public void onFinish() {
-                    Log.d(TAG, "Finished command : ffmpeg " + command);
-                    progressDialog.dismiss();
-
+                    num_of_commands_completed++;
+                    Log.d(TAG, "Finished command");
+                    // progress dialog must be removed when all the commands are completed
+                    if(num_of_commands_completed == max_num_of_commands) {
+                        progressDialog.dismiss();
+                    }
                 }
             });
         } catch (FFmpegCommandAlreadyRunningException e) {
-            // do nothing for now
+            e.printStackTrace();
         }
     }
 
