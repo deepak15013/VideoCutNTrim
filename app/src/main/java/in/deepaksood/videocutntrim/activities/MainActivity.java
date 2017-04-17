@@ -156,7 +156,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * This function
+     * This function initializes the directory where all the intermediate file will be stored.
+     * Default directory - Movies will be used, if not available then new folder named "VideoEditor" will be created,
+     * and working directory initialized to that.
      *
      * @return String
      *              path to the directory created or existing for temporary file storage
@@ -185,10 +187,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     *
+     * Check if permission for external storage available or not,
+     * if not available, then get the permission from user.
      */
     private void checkAndGetRuntimePermissions() {
-
         if(ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -199,6 +201,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This is the callback method after the user permission has been asked for.
+     *
+     * @param requestCode
+     *                  the constant for permission request
+     * @param permissions
+     * @param grantResults
+     *                  the result for the permissions asked
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -215,6 +226,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This is callback method after the browse intent has been fired.
+     *
+     * @param requestCode
+     *                  constant containing the request from the activity
+     * @param resultCode
+     *                  constant that contain the result returned after the intent returns
+     * @param data
+     *                  the selected video uri returned
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
