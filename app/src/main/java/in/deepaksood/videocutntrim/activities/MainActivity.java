@@ -36,7 +36,10 @@ import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunnin
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 
 import in.deepaksood.videocutntrim.R;
 
@@ -85,6 +88,12 @@ public class MainActivity extends AppCompatActivity {
     // this variable will store the directory path where all the temporary work will be saved and then cleared
     // first try to get the movies folder, if failed then create a folder in internal storage as VideoEditor
     private String directoryPath;
+
+    // Path for intermediate video location
+    String cut1Location;
+    String cut2Location;
+    String temp1Location;
+    String temp2Location;
 
     // Progress Dialog to show when the ffmpeg command is running
     private ProgressDialog progressDialog;
@@ -345,10 +354,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(getSaveDirectory()) {
-            String cut1Location = directoryPath + File.separator + "cut1.mp4";
-            String cut2Location = directoryPath + File.separator + "cut2.mp4";
-            String temp1Location = directoryPath + File.separator + "intermediate1.ts";
-            String temp2Location = directoryPath + File.separator + "intermediate2.ts";
+            cut1Location = directoryPath + File.separator + "cut1.mp4";
+            cut2Location = directoryPath + File.separator + "cut2.mp4";
+            temp1Location = directoryPath + File.separator + "intermediate1.ts";
+            temp2Location = directoryPath + File.separator + "intermediate2.ts";
 
             Log.d(TAG, "video start time: " + 0);
             Log.d(TAG, "video end time: " + videoDurationSeconds);
@@ -393,7 +402,10 @@ public class MainActivity extends AppCompatActivity {
         if(uploadVideoName != null && !uploadVideoName.equals("")) {
             File directoryFile = new File(directoryPath);
             if(directoryFile.exists() && directoryFile.isDirectory()) {
-                cutVideoName = directoryFile.getAbsolutePath() + "/cropped_"+uploadVideoName;
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
+                Date date = new Date();
+                String timeStamp = simpleDateFormat.format(date);
+                cutVideoName = directoryFile.getAbsolutePath() + "/cropped_" + timeStamp + "_" + uploadVideoName;
                 Log.v(TAG,"cutVideoName: "+cutVideoName);
             }
             return true;
@@ -434,7 +446,30 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Finished command");
                     // progress dialog must be removed when all the commands are completed
                     if(num_of_commands_completed == max_num_of_commands) {
+                        Log.d(TAG, "All commands processed");
                         progressDialog.dismiss();
+
+                        // All the intermediate file must be deleted, for next round of cutting
+                        Log.d(TAG, "Deleting file in progress");
+                        File file = new File(cut1Location);
+                        if(file.exists()) {
+                            Log.d(TAG, ""+file.delete());
+                        }
+                        file = new File(cut2Location);
+                        if(file.exists()) {
+                            Log.d(TAG, ""+file.delete());
+                        }
+                        file = new File(temp1Location);
+                        if(file.exists()) {
+                            Log.d(TAG, ""+file.delete());
+                        }
+                        file = new File(temp2Location);
+                        if(file.exists()) {
+                            Log.d(TAG, ""+file.delete());
+                        }
+
+                        uri = Uri.fromFile(new File(cutVideoName));
+                        setVideoContainer();
                     }
                 }
             });
