@@ -39,13 +39,6 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_browse"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:layout_gravity="center"/>
-
         <LinearLayout
             android:id="@+id/ll_cut_controller"
             android:layout_width="wrap_content"
@@ -61,7 +54,10 @@
                 custom:tickInterval="1"
                 custom:tickEnd="10"
                 custom:rangeBarColor="@color/rangeBarColor"
+                custom:tickColor="@color/tickColor"
                 custom:pinColor="@color/pinColor"
+                custom:connectingLineColor="@color/connectingLineColor"
+                custom:selectorColor="@color/selectorColor"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"/>
 

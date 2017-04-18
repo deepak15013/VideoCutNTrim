@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
     // browse button for searching video from file explorer
     private Button btnBrowse;
     private Button btnCut;
-    private TextView tvBrowse;
     private RangeBar rbView;
     private TextView tvStartTime;
     private TextView tvEndTime;
@@ -125,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
         rbView = (RangeBar) findViewById(R.id.rb_view);
         vvPlayer = (VideoView) findViewById(R.id.vv_player);
 
-        tvBrowse = (TextView) findViewById(R.id.tv_browse);
         btnCut = (Button) findViewById(R.id.btn_cut);
         btnBrowse = (Button) findViewById(R.id.btn_browse);
         btnBrowse.setOnClickListener(new View.OnClickListener() {
@@ -252,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
             if(data != null) {
                 uri = data.getData();
                 Log.i(TAG, "Uri: " + uri.toString());
-                tvBrowse.setText(uri.toString());
                 setVideoContainer();
             }
         } else {
@@ -368,29 +365,30 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "cutVideoName: " + cutVideoName);
 
             max_num_of_commands = 5;
+            num_of_commands_completed = 0;
 
-            // ffmpeg -ss 0 -i videoplayback.mp4 -t 20 -c copy cut1.mp4
-            String[] cmd_cut_1 = {"-ss", "" + 0, "-i", videoLocation, "-t", "" + cutStartTimeSeconds, "-c", "copy", cut1Location};
+            // ffmpeg -y -ss 0 -i videoplayback.mp4 -t 20 -c copy cut1.mp4
+            String[] cmd_cut_1 = {"-y" ,"-ss", "" + 0, "-i", videoLocation, "-t", "" + cutStartTimeSeconds, "-c", "copy", cut1Location};
             System.out.println("cmd_cut_1: " + Arrays.toString(cmd_cut_1));
             execFFmpegBinary(cmd_cut_1);
 
-            // ffmpeg -ss 40 -i videoplayback.mp4 -t 235 -c copy cut2.mp4
-            String[] cmd_cut_2 = {"-ss", "" + cutEndTimeSeconds, "-i", videoLocation, "-t", "" + videoDurationSeconds, "-c", "copy", cut2Location};
+            // ffmpeg -y -ss 40 -i videoplayback.mp4 -t 235 -c copy cut2.mp4
+            String[] cmd_cut_2 = {"-y", "-ss", "" + cutEndTimeSeconds, "-i", videoLocation, "-t", "" + videoDurationSeconds, "-c", "copy", cut2Location};
             System.out.println("cmd_cut_2: " + Arrays.toString(cmd_cut_2));
             execFFmpegBinary(cmd_cut_2);
 
-            // ffmpeg -i cut1.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts intermediate1.ts
-            String[] cmd_convert_1 = {"-i", cut1Location, "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "mpegts", temp1Location};
+            // ffmpeg -y -i cut1.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts intermediate1.ts
+            String[] cmd_convert_1 = {"-y", "-i", cut1Location, "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "mpegts", temp1Location};
             System.out.println("cmd_convert_1: " + Arrays.toString(cmd_convert_1));
             execFFmpegBinary(cmd_convert_1);
 
-            // ffmpeg -i cut2.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts intermediate2.ts
-            String[] cmd_convert_2 = {"-i", cut2Location, "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "mpegts", temp2Location};
+            // ffmpeg -y -i cut2.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts intermediate2.ts
+            String[] cmd_convert_2 = {"-y", "-i", cut2Location, "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "mpegts", temp2Location};
             System.out.println("cmd_convert_2: " + Arrays.toString(cmd_convert_2));
             execFFmpegBinary(cmd_convert_2);
 
-            // ffmpeg -i "concat:intermediate1.ts|intermediate2.ts" -c copy -bsf:a aac_adtstoasc final.mp4
-            String[] cmd_join = {"-i", "concat:"+temp1Location+"|"+temp2Location, "-c", "copy", "-bsf:a", "aac_adtstoasc", cutVideoName};
+            // ffmpeg -y -i "concat:intermediate1.ts|intermediate2.ts" -c copy -bsf:a aac_adtstoasc final.mp4
+            String[] cmd_join = {"-y", "-i", "concat:"+temp1Location+"|"+temp2Location, "-c", "copy", "-bsf:a", "aac_adtstoasc", cutVideoName};
             System.out.println("cmd_join: " + Arrays.toString(cmd_join));
             execFFmpegBinary(cmd_join);
         } else {
@@ -468,6 +466,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, ""+file.delete());
                         }
 
+                        /* Convert the new file created to uri to play it in videoView using setVideoContainer() */
                         uri = Uri.fromFile(new File(cutVideoName));
                         setVideoContainer();
                     }
