@@ -274,12 +274,14 @@ public class MainActivity extends AppCompatActivity {
         vvPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-
                 videoDurationSeconds = mp.getDuration()/1000;
                 Log.v(TAG,"VideoDurationSeconds: "+videoDurationSeconds);
-                rbView.setVisibility(View.VISIBLE);
                 rbView.setTickEnd(videoDurationSeconds);
                 tvEndTime.setText(convertTime(videoDurationSeconds));
+
+                /* for setting the tick pin to start and end positions every time */
+                rbView.setRangePinsByIndices(0, videoDurationSeconds);
+                rbView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -492,8 +494,6 @@ public class MainActivity extends AppCompatActivity {
                 if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
-
-                // TODO handle non-primary volumes
             }
             // DownloadsProvider
             else if (isDownloadsDocument(uri)) {
