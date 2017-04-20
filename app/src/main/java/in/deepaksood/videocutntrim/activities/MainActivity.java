@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     private String cutVideoName;
 
     // this variable will store the directory path where all the temporary work will be saved and then cleared
-    // first try to get the movies folder, if failed then create a folder in internal storage as VideoEditor
+    // first try to get the VideoEditor folder, if failed then create a folder in internal storage as VideoEditor
     private String directoryPath;
 
     // Path for intermediate video location
@@ -164,32 +164,32 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * This function initializes the directory where all the intermediate file will be stored.
-     * Default directory - Movies will be used, if not available then new folder named "VideoEditor" will be created,
+     * Default directory - VideoEditor will be used, if not available then new folder named "VideoEditor" will be created,
      * and working directory initialized to that.
      *
      * @return String
      *              path to the directory created or existing for temporary file storage
      */
     private String checkDirectory() {
-        File directoryFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-        if(directoryFile.exists() && directoryFile.isDirectory()) {
-            return directoryFile.getAbsolutePath();
-        } else {
-            File folder = new File(Environment.getExternalStorageDirectory() +
-                    File.separator + "VideoEditor");
-            boolean success = true;
-            if (!folder.exists()) {
-                success = folder.mkdirs();
-            }
-            if (success) {
-                // folder created or exists
+        File directoryFile = Environment.getExternalStorageDirectory();
+        if(directoryFile != null) {
+            File folder = new File(directoryFile + File.separator + "VideoEditor");
+            if(folder.exists() && folder.isDirectory()) {
                 return folder.getAbsolutePath();
             } else {
-                // not able to create folder
-                Toast.makeText(this, "cannot create directory", Toast.LENGTH_SHORT).show();
-                finish();
-                return null;
+                if(folder.mkdirs()) {
+                    return folder.getAbsolutePath();
+                } else {
+                    Toast.makeText(this, "cannot create directory", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return null;
+                }
             }
+
+        } else {
+            Toast.makeText(this, "cannot create directory", Toast.LENGTH_SHORT).show();
+            finish();
+            return null;
         }
     }
 
@@ -345,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
 
         String videoLocation = getPath(MainActivity.this, uri);
 
-        // ex - /storage/emulated/0/Movies/videoplayback.mp4
+        // ex - /storage/emulated/0/VideoEditor/videoplayback.mp4
         if(videoLocation != null) {
             String[] splitted = videoLocation.split("/");
             uploadVideoName = splitted[splitted.length-1];
