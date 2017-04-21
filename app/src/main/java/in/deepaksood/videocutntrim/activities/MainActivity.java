@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // constant for storing the runtime permission access for external storage media
     private static final int MY_PERMISSION_WRITE_EXTERNAL_STORAGE = 44;
+    private static final int MY_PERMISSION_RECORD_AUDIO = 45;
 
     // initializing the buttons
     private Button btnCreateStory;
@@ -56,6 +57,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     MY_PERMISSION_WRITE_EXTERNAL_STORAGE);
         }
+
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO},
+                    MY_PERMISSION_RECORD_AUDIO);
+        }
     }
 
     /**
@@ -73,10 +83,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case MY_PERMISSION_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Permission Granted");
+                    Log.d(TAG, "Permission Granted for write_external_storage");
                 }
                 else {
                     Toast.makeText(this, "Storage Access Denied", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+
+            case MY_PERMISSION_RECORD_AUDIO: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permission Granted for record_audio");
+                }
+                else {
+                    Toast.makeText(this, "Record Audio Access Denied", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
