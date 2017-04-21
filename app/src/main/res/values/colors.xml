@@ -10,4 +10,7 @@
     <color name="connectingLineColor">#FF0000</color>
     <color name="pinColor">#FF0000</color>
     <color name="selectorColor">#FF0000</color>
+
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorButton">#311B92</color>
 </resources>
