@@ -1,12 +1,10 @@
 package in.deepaksood.videocutntrim.activities;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -14,9 +12,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,10 +37,12 @@ import java.util.Date;
 import java.util.Locale;
 
 import in.deepaksood.videocutntrim.R;
+import in.deepaksood.videocutntrim.utils.CommonUtils;
+import in.deepaksood.videocutntrim.utils.Constants;
 
 /**
  * EditStory where all the processing is happening
- * Layout - edit_story.xml
+ * Layout - activity_edit_storydit_story.xml
  * @author deepak
  */
 public class EditStory extends AppCompatActivity {
@@ -77,13 +74,8 @@ public class EditStory extends AppCompatActivity {
 
     // the seek bar end position
     private int cutEndTimeSeconds;
-    private FFmpeg ffmpeg;
     private String uploadVideoName;
     private String cutVideoName;
-
-    // this variable will store the directory path where all the temporary work will be saved and then cleared
-    // first try to get the VideoEditor folder, if failed then create a folder in internal storage as VideoEditor
-    private String directoryPath;
 
     // Path for intermediate video location
     String cut1Location;
@@ -108,7 +100,7 @@ public class EditStory extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_story);
+        setContentView(R.layout.activity_edit_story);
 
         /* map all the layout items with respective objects and also set a listener for the buttons */
         llCutController = (LinearLayout) findViewById(R.id.ll_cut_controller);
@@ -148,43 +140,6 @@ public class EditStory extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Cutting file");
         progressDialog.setCancelable(false);
-
-        /* Loading ffmpeg binaries */
-        loadFFMPEGBinary();
-
-        /* Initializing the directory path where all the temporary files will be stored and retrieved */
-        directoryPath = checkDirectory();
-    }
-
-    /**
-     * This function initializes the directory where all the intermediate file will be stored.
-     * Default directory - VideoEditor will be used, if not available then new folder named "VideoEditor" will be created,
-     * and working directory initialized to that.
-     *
-     * @return String
-     *              path to the directory created or existing for temporary file storage
-     */
-    private String checkDirectory() {
-        File directoryFile = Environment.getExternalStorageDirectory();
-        if(directoryFile != null) {
-            File folder = new File(directoryFile + File.separator + "VideoEditor");
-            if(folder.exists() && folder.isDirectory()) {
-                return folder.getAbsolutePath();
-            } else {
-                if(folder.mkdirs()) {
-                    return folder.getAbsolutePath();
-                } else {
-                    Toast.makeText(this, "cannot create directory", Toast.LENGTH_SHORT).show();
-                    finish();
-                    return null;
-                }
-            }
-
-        } else {
-            Toast.makeText(this, "cannot create directory", Toast.LENGTH_SHORT).show();
-            finish();
-            return null;
-        }
     }
 
     /**
@@ -261,43 +216,9 @@ public class EditStory extends AppCompatActivity {
         return String.format("%02d", hr) + ":" + String.format("%02d", mn) + ":" + String.format("%02d", sec);
     }
 
-    private void loadFFMPEGBinary() {
-
-        if(ffmpeg == null) {
-            ffmpeg = FFmpeg.getInstance(this);
-        }
-        try {
-            ffmpeg.loadBinary(new FFmpegLoadBinaryResponseHandler() {
-                @Override
-                public void onFailure() {
-                    Log.v(TAG,"ffmpeg not supported");
-                    Toast.makeText(EditStory.this, "Ffmpeg not supported", Toast.LENGTH_SHORT).show();
-                    EditStory.this.finish();
-                }
-
-                @Override
-                public void onSuccess() {
-                    Log.v(TAG,"ffmpeg supported");
-                }
-
-                @Override
-                public void onStart() {
-                    Log.v(TAG,"ffmpeg started");
-                }
-
-                @Override
-                public void onFinish() {
-                    Log.v(TAG,"ffmpeg finished");
-                }
-            });
-        } catch (FFmpegNotSupportedException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void cutVideo(int cutStartTimeSeconds, int cutEndTimeSeconds) {
 
-        String videoLocation = getPath(EditStory.this, uri);
+        String videoLocation = CommonUtils.getInstance().getPath(EditStory.this, uri);
 
         // ex - /storage/emulated/0/VideoEditor/videoplayback.mp4
         if(videoLocation != null) {
@@ -307,10 +228,10 @@ public class EditStory extends AppCompatActivity {
         }
 
         if(getSaveDirectory()) {
-            cut1Location = directoryPath + File.separator + "cut1.mp4";
-            cut2Location = directoryPath + File.separator + "cut2.mp4";
-            temp1Location = directoryPath + File.separator + "intermediate1.ts";
-            temp2Location = directoryPath + File.separator + "intermediate2.ts";
+            cut1Location = Constants.directoryPath + File.separator + "cut1.mp4";
+            cut2Location = Constants.directoryPath + File.separator + "cut2.mp4";
+            temp1Location = Constants.directoryPath + File.separator + "intermediate1.ts";
+            temp2Location = Constants.directoryPath + File.separator + "intermediate2.ts";
 
             Log.d(TAG, "video start time: " + 0);
             Log.d(TAG, "video end time: " + videoDurationSeconds);
@@ -354,7 +275,7 @@ public class EditStory extends AppCompatActivity {
 
     private boolean getSaveDirectory() {
         if(uploadVideoName != null && !uploadVideoName.equals("")) {
-            File directoryFile = new File(directoryPath);
+            File directoryFile = new File(Constants.directoryPath);
             if(directoryFile.exists() && directoryFile.isDirectory()) {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
                 Date date = new Date();
@@ -369,178 +290,72 @@ public class EditStory extends AppCompatActivity {
     }
 
     private void execFFmpegBinary(final String[] command) {
-        try {
-            ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
-                @Override
-                public void onFailure(String s) {
-                    Log.d(TAG, "FAILED with output : " + s);
-                }
+        if(CommonUtils.getInstance().ffmpeg != null) {
+            try {
 
-                @Override
-                public void onSuccess(String s) {
-                    Log.d(TAG, "SUCCESS with output : " + s);
+                CommonUtils.getInstance().ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
+                    @Override
+                    public void onFailure(String s) {
+                        Log.d(TAG, "FAILED with output : " + s);
+                    }
 
-                }
+                    @Override
+                    public void onSuccess(String s) {
+                        Log.d(TAG, "SUCCESS with output : " + s);
 
-                @Override
-                public void onProgress(String s) {
-                    Log.d(TAG, "progress : " + s);
-                }
+                    }
 
-                @Override
-                public void onStart() {
-                    Log.d(TAG, "Started command");
-                    progressDialog.setMessage("Processing...");
-                    progressDialog.show();
-                }
+                    @Override
+                    public void onProgress(String s) {
+                        Log.d(TAG, "progress : " + s);
+                    }
 
-                @Override
-                public void onFinish() {
-                    num_of_commands_completed++;
-                    Log.d(TAG, "Finished command");
-                    // progress dialog must be removed when all the commands are completed
-                    if(num_of_commands_completed == max_num_of_commands) {
-                        Log.d(TAG, "All commands processed");
-                        progressDialog.dismiss();
+                    @Override
+                    public void onStart() {
+                        Log.d(TAG, "Started command");
+                        progressDialog.setMessage("Processing...");
+                        progressDialog.show();
+                    }
 
-                        // All the intermediate file must be deleted, for next round of cutting
-                        Log.d(TAG, "Deleting file in progress");
-                        File file = new File(cut1Location);
-                        if(file.exists()) {
-                            Log.d(TAG, ""+file.delete());
-                        }
-                        file = new File(cut2Location);
-                        if(file.exists()) {
-                            Log.d(TAG, ""+file.delete());
-                        }
-                        file = new File(temp1Location);
-                        if(file.exists()) {
-                            Log.d(TAG, ""+file.delete());
-                        }
-                        file = new File(temp2Location);
-                        if(file.exists()) {
-                            Log.d(TAG, ""+file.delete());
-                        }
+                    @Override
+                    public void onFinish() {
+                        num_of_commands_completed++;
+                        Log.d(TAG, "Finished command");
+                        // progress dialog must be removed when all the commands are completed
+                        if(num_of_commands_completed == max_num_of_commands) {
+                            Log.d(TAG, "All commands processed");
+                            progressDialog.dismiss();
+
+                            // All the intermediate file must be deleted, for next round of cutting
+                            Log.d(TAG, "Deleting file in progress");
+                            File file = new File(cut1Location);
+                            if(file.exists()) {
+                                Log.d(TAG, ""+file.delete());
+                            }
+                            file = new File(cut2Location);
+                            if(file.exists()) {
+                                Log.d(TAG, ""+file.delete());
+                            }
+                            file = new File(temp1Location);
+                            if(file.exists()) {
+                                Log.d(TAG, ""+file.delete());
+                            }
+                            file = new File(temp2Location);
+                            if(file.exists()) {
+                                Log.d(TAG, ""+file.delete());
+                            }
 
                         /* Convert the new file created to uri to play it in videoView using setVideoContainer() */
-                        uri = Uri.fromFile(new File(cutVideoName));
-                        setVideoContainer();
+                            uri = Uri.fromFile(new File(cutVideoName));
+                            setVideoContainer();
+                        }
                     }
-                }
-            });
-        } catch (FFmpegCommandAlreadyRunningException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String getPath(final Context context, final Uri uri) {
-
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
-        // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-            if (isExternalStorageDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                if ("primary".equalsIgnoreCase(type)) {
-                    return Environment.getExternalStorageDirectory() + "/" + split[1];
-                }
+                });
+            } catch (FFmpegCommandAlreadyRunningException e) {
+                e.printStackTrace();
             }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
-
-                final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-
-                return getDataColumn(context, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
-
-                return getDataColumn(context, contentUri, selection, selectionArgs);
-            }
+        } else {
+            Toast.makeText(this, "FFMPEG not loaded", Toast.LENGTH_SHORT).show();
         }
-        // MediaStore (and general)
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            return getDataColumn(context, uri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
-
-        return null;
     }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
-    private boolean isExternalStorageDocument(Uri uri) {
-        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
-    private boolean isDownloadsDocument(Uri uri) {
-        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
-    private boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * Get the value of the data column for this Uri.
-     */
-    private String getDataColumn(Context context, Uri uri, String selection,
-                                 String[] selectionArgs) {
-
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {
-                column
-        };
-
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int column_index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(column_index);
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
-
 }

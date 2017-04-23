@@ -15,6 +15,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import in.deepaksood.videocutntrim.R;
+import in.deepaksood.videocutntrim.utils.CommonUtils;
+import in.deepaksood.videocutntrim.utils.Constants;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -42,6 +44,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btnCreateStory.setOnClickListener(this);
         btnEditStory.setOnClickListener(this);
+
+        /* Initializing the directory path where all the temporary files will be stored and retrieved */
+        Constants.directoryPath = CommonUtils.getInstance().checkDirectory();
+        if(Constants.directoryPath == null) {
+            Toast.makeText(this, "Not able to create directory", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        /* Loading ffmpeg binaries */
+        CommonUtils.getInstance().loadFFMPEGBinary(this);
     }
 
     /**
