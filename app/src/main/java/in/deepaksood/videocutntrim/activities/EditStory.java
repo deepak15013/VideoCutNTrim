@@ -168,10 +168,7 @@ public class EditStory extends AppCompatActivity {
 
     private void setVideoContainer() {
         if(uri != null) {
-            mediaController = new MediaController(this) {
-                @Override
-                public void hide() {}
-            };
+            mediaController = new MediaController(this);
             mediaController.setAnchorView(vvPlayer);
             vvPlayer.setMediaController(mediaController);
             vvPlayer.setVideoURI(uri);
