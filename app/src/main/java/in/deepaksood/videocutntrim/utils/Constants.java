@@ -1,7 +1,5 @@
 package in.deepaksood.videocutntrim.utils;
 
-import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
-
 import java.util.ArrayList;
 
 /**
