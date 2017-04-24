@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -19,6 +21,10 @@ import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunnin
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import in.deepaksood.videocutntrim.activities.EditStory;
 
@@ -60,6 +66,12 @@ public class CommonUtils {
     /* This will hold the global ffmpeg variable */
     public FFmpeg ffmpeg;
 
+    /* This will hold all mediaRecorder functionality*/
+    private MediaRecorder mediaRecorder;
+
+    /* This will hold mediaPlayer for playing the recorded media */
+    private MediaPlayer mediaPlayer;
+
     /**
      * This function initializes the directory where all the intermediate file will be stored.
      * Default directory - VideoEditor will be used, if not available then new folder named "VideoEditor" will be created,
@@ -87,6 +99,18 @@ public class CommonUtils {
             // not able to get environment
             return null;
         }
+    }
+
+    /**
+     * This function will supply timeStamp for path formation
+     *
+     * @return
+     *         String with timeStamp in yyyyMMddHHmmss format
+     */
+    public String getTimeStamp() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH);
+        Date date = new Date();
+        return simpleDateFormat.format(date);
     }
 
     /**
@@ -240,6 +264,83 @@ public class CommonUtils {
             });
         } catch (FFmpegNotSupportedException e) {
             e.printStackTrace();
+        }
+    }
+
+    /* --- Media Related Functionalities --- */
+
+    /**
+     * This method will start the voice recording
+     * @param voiceStoragePath
+     *                      String to the path where the file will be stored
+     */
+    public void startAudioRecording(String voiceStoragePath) {
+        if(mediaRecorder == null) {
+            mediaRecorder = new MediaRecorder();
+        }
+
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        mediaRecorder.setOutputFile(voiceStoragePath);
+        try {
+            mediaRecorder.prepare();
+            mediaRecorder.start();
+        } catch (IOException e) {
+            Log.e(TAG, "Not able to prepare mediaRecorder: " + e);
+            mediaRecorder.stop();
+            mediaRecorder.release();
+        }
+
+    }
+
+    /**
+     * This function will stop voice recording and release the resources
+     */
+    public void stopAudioRecording() {
+        if(mediaRecorder != null) {
+            mediaRecorder.stop();
+            mediaRecorder.release();
+            mediaRecorder = null;
+            Log.d(TAG, "mediaRecorder: " + mediaRecorder);
+        } else {
+            Log.d(TAG, "mediaRecorder already stopped");
+        }
+    }
+
+    /**
+     * This function plays the media passed to it
+     *
+     * @param voiceStoragePath
+     *                      String for the path where audio is to be played
+     */
+    public void startAudioPlaying(String voiceStoragePath) {
+        if(mediaPlayer == null) {
+            mediaPlayer = new MediaPlayer();
+        }
+
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            Log.d(TAG, "media player stopped: " + mediaPlayer);
+        }
+
+        try {
+            mediaPlayer.setDataSource(voiceStoragePath);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void stopAudioPlaying() {
+        if(mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+            mediaPlayer.release();
+            mediaPlayer = null;
+            Log.d(TAG, "media player stopped: " + mediaPlayer);
         }
     }
 

@@ -33,8 +33,6 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     // Uri for data
     private Uri uri;
 
-    ArrayList<String> imageUriList;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,9 +42,9 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         btnDeleteContainer = (Button) findViewById(R.id.btn_delete_container);
 
         // this is for populating recycler view
-        imageUriList =new ArrayList<>();
-        imageUriList.add("");
-        recyclerViewAdapter= new RecyclerViewAdapter(this, imageUriList);
+        Constants.imageUriList.add("");
+        Constants.audioUriList.add("");
+        recyclerViewAdapter= new RecyclerViewAdapter(this);
 
         /* Recycler view initialization */
         recyclerView = (RecyclerView) findViewById(R.id.rv_timeline);
@@ -76,7 +74,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
 
                 /* Set the data returned from the FileManager intent to the position requested */
                 Log.i(TAG, "Uri: " + uri.toString());
-                imageUriList.set(Constants.update_position, uri.toString());
+                Constants.imageUriList.set(Constants.update_position, uri.toString());
                 recyclerViewAdapter.notifyDataSetChanged();
             }
         } else {
@@ -89,13 +87,15 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         switch (view.getId()) {
             case R.id.btn_add_container:
                 Toast.makeText(this, "add", Toast.LENGTH_SHORT).show();
-                imageUriList.add("");
+                Constants.imageUriList.add("");
+                Constants.audioUriList.add("");
                 recyclerViewAdapter.notifyDataSetChanged();
                 break;
 
             case R.id.btn_delete_container:
                 Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show();
-                imageUriList.remove(imageUriList.size()-1);
+                Constants.imageUriList.remove(Constants.imageUriList.size() - 1);
+                Constants.audioUriList.remove(Constants.audioUriList.size() - 1);
                 recyclerViewAdapter.notifyDataSetChanged();
                 break;
         }

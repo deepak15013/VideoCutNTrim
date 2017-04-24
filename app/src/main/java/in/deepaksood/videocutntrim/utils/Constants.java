@@ -2,6 +2,8 @@ package in.deepaksood.videocutntrim.utils;
 
 import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
 
+import java.util.ArrayList;
+
 /**
  * Created by Deepak on 23-04-2017.
  */
@@ -19,5 +21,9 @@ public class Constants {
     public static int update_position = 0;
 
     // intent.putExtra for uri in RecyclerViewAdapter
-    public static final String EXTRA_IMAGE_URI = "EXTRA_IMAGE_URI";
+    public static final String EXTRA_POSITION = "EXTRA_POSITION";
+
+    /* List holding images and audio */
+    public static ArrayList<String> imageUriList = new ArrayList<>();
+    public static ArrayList<String> audioUriList = new ArrayList<>();
 }

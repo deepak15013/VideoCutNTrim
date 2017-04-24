@@ -25,9 +25,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private List<String> imageUriList;
     private CreateStory context;
 
-    public RecyclerViewAdapter(CreateStory context, List<String> imageUriList) {
+    public RecyclerViewAdapter(CreateStory context) {
         this.context = context;
-        this.imageUriList = imageUriList;
+        this.imageUriList = Constants.imageUriList;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -66,7 +66,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 } else {
                     // Image already loaded, start the record activity
                     Intent intent = new Intent(context, RecordActivity.class);
-                    intent.putExtra(Constants.EXTRA_IMAGE_URI, imageUriList.get(holder.getAdapterPosition()));
+                    intent.putExtra(Constants.EXTRA_POSITION, holder.getAdapterPosition());
                     context.startActivity(intent);
                 }
             }

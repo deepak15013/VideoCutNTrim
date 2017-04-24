@@ -268,17 +268,14 @@ public class EditStory extends AppCompatActivity {
     }
 
     private boolean getSaveDirectory() {
-        if(uploadVideoName != null && !uploadVideoName.equals("")) {
-            File directoryFile = new File(Constants.directoryPath);
-            if(directoryFile.exists() && directoryFile.isDirectory()) {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
-                Date date = new Date();
-                String timeStamp = simpleDateFormat.format(date);
-                cutVideoName = directoryFile.getAbsolutePath() + "/cropped_" + timeStamp + "_" + uploadVideoName;
-                Log.v(TAG,"cutVideoName: "+cutVideoName);
-            }
+        if (uploadVideoName != null && !uploadVideoName.equals("")) {
+            cutVideoName = Constants.directoryPath + File.separator + "cropped_"
+                    + CommonUtils.getInstance().getTimeStamp()
+                    + "_" + uploadVideoName;
+            Log.v(TAG, "cutVideoName: " + cutVideoName);
             return true;
         } else {
+            Log.v(TAG, "uploadVideoName not found");
             return false;
         }
     }
