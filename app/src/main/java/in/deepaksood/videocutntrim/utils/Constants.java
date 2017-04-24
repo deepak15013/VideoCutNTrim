@@ -17,4 +17,7 @@ public class Constants {
 
     // TAG that holds position that requested the startActivityForResult()
     public static int update_position = 0;
+
+    // intent.putExtra for uri in RecyclerViewAdapter
+    public static final String EXTRA_IMAGE_URI = "EXTRA_IMAGE_URI";
 }

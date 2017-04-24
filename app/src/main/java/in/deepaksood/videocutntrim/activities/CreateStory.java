@@ -73,9 +73,9 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         if(requestCode == Constants.READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if(data != null) {
                 uri = data.getData();
+
+                /* Set the data returned from the FileManager intent to the position requested */
                 Log.i(TAG, "Uri: " + uri.toString());
-                //setVideoContainer();
-                Log.d(TAG, "pos: " + Constants.update_position);
                 imageUriList.set(Constants.update_position, uri.toString());
                 recyclerViewAdapter.notifyDataSetChanged();
             }

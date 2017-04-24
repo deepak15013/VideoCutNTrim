@@ -14,6 +14,7 @@ import java.util.List;
 
 import in.deepaksood.videocutntrim.R;
 import in.deepaksood.videocutntrim.activities.CreateStory;
+import in.deepaksood.videocutntrim.activities.RecordActivity;
 
 /**
  * Created by Deepak on 22-04-2017.
@@ -53,7 +54,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             @Override
             public void onClick(View view) {
 
-                if(imageUriList.get(position).equals("")) {
+                if(imageUriList.get(holder.getAdapterPosition()).equals("")) {
+                    // Image not loaded, start fileManager intent
                     Toast.makeText(context, "Load Image" + holder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -62,7 +64,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     Constants.update_position = holder.getAdapterPosition();
                     context.startActivityForResult(intent, Constants.READ_REQUEST_CODE);
                 } else {
-
+                    // Image already loaded, start the record activity
+                    Intent intent = new Intent(context, RecordActivity.class);
+                    intent.putExtra(Constants.EXTRA_IMAGE_URI, imageUriList.get(holder.getAdapterPosition()));
+                    context.startActivity(intent);
                 }
             }
         });

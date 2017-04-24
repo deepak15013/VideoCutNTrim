@@ -8,6 +8,8 @@
     <string name="btn_cut">Cut</string>
     <string name="btn_add_container">Add</string>
     <string name="btn_delete_container">Delete</string>
+    <string name="btn_record">Record</string>
+    <string name="btn_play">Play</string>
 
     <!-- TextView Strings -->
     <string name="tv_start_time">00:00:00</string>

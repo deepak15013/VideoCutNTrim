@@ -1,9 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     tools:context="in.deepaksood.videocutntrim.activities.RecordActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <ImageView
+        android:id="@+id/iv_record_container"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:contentDescription="@string/cd_iv_container"/>
+
+    <Button
+        android:id="@+id/btn_record"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:text="@string/btn_record"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold"
+        android:background="@color/colorPrimaryDark"
+        android:layout_margin="10dp"/>
+
+    <Button
+        android:id="@+id/btn_play"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:text="@string/btn_play"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold"
+        android:background="@color/colorPrimaryDark"
+        android:layout_margin="10dp"/>
+
+</LinearLayout>
