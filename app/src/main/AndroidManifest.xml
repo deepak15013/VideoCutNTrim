@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".activities.EditStory"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.MainActivity"
             android:screenOrientation="portrait">
@@ -25,7 +25,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.CreateStory"></activity>
+        <activity android:name=".activities.CreateStory" />
+        <activity android:name=".activities.RecordActivity"></activity>
     </application>
 
 </manifest>

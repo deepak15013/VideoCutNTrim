@@ -50,9 +50,6 @@ public class EditStory extends AppCompatActivity {
     // TAG for logging
     private static final String TAG = EditStory.class.getSimpleName();
 
-    // constant to store the request code for browse the video functionality
-    private static final int READ_REQUEST_CODE = 42;
-
     // linear layout hosts both the seek bar and the timer TextView associated with it
     private LinearLayout llCutController;
 
@@ -115,11 +112,11 @@ public class EditStory extends AppCompatActivity {
         btnBrowse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(EditStory.this, "Clicked", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "browse button clicked");
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-                startActivityForResult(intent, READ_REQUEST_CODE);
+                intent.setType("video/mp4");
+                startActivityForResult(intent, Constants.READ_REQUEST_CODE);
             }
         });
 
@@ -154,7 +151,7 @@ public class EditStory extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if(requestCode == Constants.READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Log.v(TAG,"data: "+data);
             if(data != null) {
                 uri = data.getData();

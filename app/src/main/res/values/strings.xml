@@ -6,6 +6,8 @@
     <string name="btn_edit_story">Edit Story</string>
     <string name="btn_browse">Browse</string>
     <string name="btn_cut">Cut</string>
+    <string name="btn_add_container">Add</string>
+    <string name="btn_delete_container">Delete</string>
 
     <!-- TextView Strings -->
     <string name="tv_start_time">00:00:00</string>

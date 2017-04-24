@@ -12,4 +12,9 @@ public class Constants {
     // first try to get the VideoEditor folder, if failed then create a folder in internal storage as VideoEditor
     public static String directoryPath;
 
+    // constant to store the request code for browse the video functionality
+    public static final int READ_REQUEST_CODE = 42;
+
+    // TAG that holds position that requested the startActivityForResult()
+    public static int update_position = 0;
 }

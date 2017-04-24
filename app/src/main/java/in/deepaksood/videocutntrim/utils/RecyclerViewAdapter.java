@@ -1,11 +1,14 @@
 package in.deepaksood.videocutntrim.utils;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -18,12 +21,12 @@ import in.deepaksood.videocutntrim.activities.CreateStory;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
 
-    private List<String> arrayList;
+    private List<String> imageUriList;
     private CreateStory context;
 
-    public RecyclerViewAdapter(List<String> arrayList, CreateStory context) {
-        this.arrayList = arrayList;
+    public RecyclerViewAdapter(CreateStory context, List<String> imageUriList) {
         this.context = context;
+        this.imageUriList = imageUriList;
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -49,14 +52,35 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.ivFilmRoll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "Clicked " + holder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
 
+                if(imageUriList.get(position).equals("")) {
+                    Toast.makeText(context, "Load Image" + holder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("*/*");
+                    Constants.update_position = holder.getAdapterPosition();
+                    context.startActivityForResult(intent, Constants.READ_REQUEST_CODE);
+                } else {
+
+                }
             }
         });
+
+        if(!imageUriList.get(position).equals("")) {
+            holder.ivContainer.setVisibility(View.VISIBLE);
+            Picasso.with(context)
+                    .load(imageUriList.get(position))
+                    .resize(148, 98)
+                    .centerCrop()
+                    .into(holder.ivContainer);
+        } else {
+            holder.ivContainer.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return arrayList.size();
+        return imageUriList.size();
     }
 }

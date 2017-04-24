@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:gravity="center"
     tools:context="in.deepaksood.videocutntrim.activities.CreateStory">
 
@@ -14,5 +15,33 @@
         android:layout_height="wrap_content"
         android:scrollbars="horizontal"
         android:fadeScrollbars="false"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_add_container"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:background="@color/colorPrimaryDark"
+            android:text="@string/btn_add_container"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold"
+            android:layout_margin="20dp"/>
+
+        <Button
+            android:id="@+id/btn_delete_container"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:background="@color/colorPrimaryDark"
+            android:text="@string/btn_delete_container"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold"
+            android:layout_margin="20dp"/>
+    </LinearLayout>
+
 
 </LinearLayout>
