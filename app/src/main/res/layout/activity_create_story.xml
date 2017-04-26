@@ -43,5 +43,14 @@
             android:layout_margin="20dp"/>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_create"
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimaryDark"
+        android:text="@string/btn_create"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold"
+        android:layout_margin="20dp"/>
 
 </LinearLayout>

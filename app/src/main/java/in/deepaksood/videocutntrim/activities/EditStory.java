@@ -226,28 +226,28 @@ public class EditStory extends AppCompatActivity {
             num_of_commands_completed = 0;
 
             // ffmpeg -y -ss 0 -i videoplayback.mp4 -t 20 -c copy cut1.mp4
-            String[] cmd_cut_1 = {"-y" ,"-ss", "" + 0, "-i", videoLocation, "-t", "" + cutStartTimeSeconds, "-c", "copy", cut1Location};
-            System.out.println("cmd_cut_1: " + Arrays.toString(cmd_cut_1));
+            String[] cmd_cut_1 = {"-y" ,"-ss", "0", "-i", videoLocation, "-t", "" + cutStartTimeSeconds, "-c", "copy", cut1Location};
+            Log.d(TAG, "cmd_cut_1: " + Arrays.toString(cmd_cut_1));
             execFFmpegBinary(cmd_cut_1);
 
             // ffmpeg -y -ss 40 -i videoplayback.mp4 -t 235 -c copy cut2.mp4
             String[] cmd_cut_2 = {"-y", "-ss", "" + cutEndTimeSeconds, "-i", videoLocation, "-t", "" + videoDurationSeconds, "-c", "copy", cut2Location};
-            System.out.println("cmd_cut_2: " + Arrays.toString(cmd_cut_2));
+            Log.d(TAG, "cmd_cut_2: " + Arrays.toString(cmd_cut_2));
             execFFmpegBinary(cmd_cut_2);
 
             // ffmpeg -y -i cut1.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts intermediate1.ts
             String[] cmd_convert_1 = {"-y", "-i", cut1Location, "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "mpegts", temp1Location};
-            System.out.println("cmd_convert_1: " + Arrays.toString(cmd_convert_1));
+            Log.d(TAG, "cmd_convert_1: " + Arrays.toString(cmd_convert_1));
             execFFmpegBinary(cmd_convert_1);
 
             // ffmpeg -y -i cut2.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts intermediate2.ts
             String[] cmd_convert_2 = {"-y", "-i", cut2Location, "-c", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "mpegts", temp2Location};
-            System.out.println("cmd_convert_2: " + Arrays.toString(cmd_convert_2));
+            Log.d(TAG, "cmd_convert_2: " + Arrays.toString(cmd_convert_2));
             execFFmpegBinary(cmd_convert_2);
 
             // ffmpeg -y -i "concat:intermediate1.ts|intermediate2.ts" -c copy -bsf:a aac_adtstoasc final.mp4
             String[] cmd_join = {"-y", "-i", "concat:"+temp1Location+"|"+temp2Location, "-c", "copy", "-bsf:a", "aac_adtstoasc", cutVideoName};
-            System.out.println("cmd_join: " + Arrays.toString(cmd_join));
+            Log.d(TAG, "cmd_join: " + Arrays.toString(cmd_join));
             execFFmpegBinary(cmd_join);
         } else {
             Toast.makeText(this, "VideoName not fetched", Toast.LENGTH_SHORT).show();

@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.CreateStory" />
-        <activity android:name=".activities.RecordActivity"></activity>
+        <activity android:name=".activities.RecordActivity" />
     </application>
 
 </manifest>
