@@ -37,6 +37,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     private Button btnAddContainer;
     private Button btnDeleteContainer;
     private Button btnCreate;
+    private Button btnRecordAudio;
 
     // Uri for data
     private Uri uri;
@@ -48,7 +49,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     int max_num_of_commands = 0;
 
     // holds the commands that are completed in a given moment
-    int num_of_commands_completed = 1;
+    int num_of_commands_completed = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         btnAddContainer = (Button) findViewById(R.id.btn_add_container);
         btnDeleteContainer = (Button) findViewById(R.id.btn_delete_container);
         btnCreate = (Button) findViewById(R.id.btn_create);
+        btnRecordAudio = (Button) findViewById(R.id.btn_record_audio);
 
         // this is for populating recycler view
         Constants.imageUriList.add("");
@@ -73,6 +75,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         btnAddContainer.setOnClickListener(this);
         btnDeleteContainer.setOnClickListener(this);
         btnCreate.setOnClickListener(this);
+        btnRecordAudio.setOnClickListener(this);
 
         /* initializing progress bar, used when ffmpeg commands are run */
         progressDialog = new ProgressDialog(this);
@@ -113,7 +116,8 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                 Toast.makeText(this, "add", Toast.LENGTH_SHORT).show();
                 Constants.imageUriList.add("");
                 Constants.audioUriList.add("");
-                recyclerViewAdapter.notifyDataSetChanged();
+                recyclerViewAdapter.notifyItemInserted(Constants.imageUriList.size() - 1);
+                recyclerView.getLayoutManager().scrollToPosition(Constants.imageUriList.size() - 1);
                 break;
 
             case R.id.btn_delete_container:
@@ -131,6 +135,11 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                 Toast.makeText(this, "create story", Toast.LENGTH_SHORT).show();
                 createStory();
                 break;
+
+            case R.id.btn_record_audio:
+                Toast.makeText(this, "Record audio clip", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, RecordActivity.class);
+                startActivity(intent);
         }
     }
 
@@ -151,7 +160,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         }
 
         if(runCommand) {
-            max_num_of_commands = (numOfFrames * 2) + 1;
+            max_num_of_commands = numOfFrames + 1;
             Log.d(TAG, "Max Commands to execute: " + max_num_of_commands);
 
             ArrayList<String> intermediateFiles = new ArrayList<>();
@@ -186,7 +195,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                     + ".mp4";
 
             String[] join_command = {"-y", "-i", concat_command,
-                        "-c", "copy", storyVideoName};
+                        "-c", "copy", "-bsf:a", "aac_adtstoasc", storyVideoName};
 
             Log.d(TAG, "join_command: " + Arrays.toString(join_command));
 

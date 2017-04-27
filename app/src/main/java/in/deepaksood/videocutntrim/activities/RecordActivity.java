@@ -21,7 +21,6 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
     // Tag for loggging
     private static final String TAG = RecordActivity.class.getSimpleName();
 
-    private ImageView ivRecordContainer;
     private Button btnRecord;
     private Button btnPlay;
 
@@ -33,18 +32,10 @@ public class RecordActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
-        ivRecordContainer = (ImageView) findViewById(R.id.iv_record_container);
         btnRecord = (Button) findViewById(R.id.btn_record);
         btnPlay = (Button) findViewById(R.id.btn_play);
 
         recordPosition = getIntent().getIntExtra(Constants.EXTRA_POSITION, 0);
-
-        Picasso.with(this)
-                .load(Constants.imageUriList.get(recordPosition))
-                .resize(250, 250)
-                .centerCrop()
-                .into(ivRecordContainer);
-
 
         btnRecord.setOnClickListener(this);
         btnPlay.setOnClickListener(this);

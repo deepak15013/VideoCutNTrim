@@ -8,7 +8,8 @@
     <string name="btn_cut">Cut</string>
     <string name="btn_add_container">Add</string>
     <string name="btn_delete_container">Delete</string>
-    <string name="btn_create">Create</string>
+    <string name="btn_create">Create Story</string>
+    <string name="btn_record">Record Audio</string>
 
     <string name="btn_start_recording">Record</string>
     <string name="btn_stop_recording">Stop</string>
