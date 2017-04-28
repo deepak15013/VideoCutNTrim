@@ -14,37 +14,36 @@ import java.util.List;
 
 import in.deepaksood.videocutntrim.R;
 import in.deepaksood.videocutntrim.activities.CreateStory;
-import in.deepaksood.videocutntrim.activities.RecordActivity;
 
 /**
  * Created by Deepak on 22-04-2017.
  */
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
+public class VideoRecyclerViewAdapter extends RecyclerView.Adapter<VideoRecyclerViewAdapter.MyViewHolder> {
 
     private List<String> imageUriList;
     private CreateStory context;
 
-    public RecyclerViewAdapter(CreateStory context) {
+    public VideoRecyclerViewAdapter(CreateStory context) {
         this.context = context;
         this.imageUriList = Constants.imageUriList;
     }
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
         private ImageView ivFilmRoll;
         private ImageView ivContainer;
 
-        public MyViewHolder(View view) {
+        MyViewHolder(View view) {
             super(view);
-            ivFilmRoll = (ImageView) view.findViewById(R.id.iv_film_roll);
-            ivContainer = (ImageView) view.findViewById(R.id.iv_container);
+            ivFilmRoll = (ImageView) view.findViewById(R.id.iv_film_roll_video);
+            ivContainer = (ImageView) view.findViewById(R.id.iv_container_video);
         }
     }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.single_item_view, parent, false);
+                .inflate(R.layout.single_item_video, parent, false);
         return new MyViewHolder(itemView);
     }
 
@@ -54,21 +53,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             @Override
             public void onClick(View view) {
 
-                if(imageUriList.get(holder.getAdapterPosition()).equals("")) {
-                    // Image not loaded, start fileManager intent
-                    Toast.makeText(context, "Load Image" + holder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
+                // load image by starting fileManager intent
+                Toast.makeText(context, "Load Image" + holder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
 
-                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    intent.setType("*/*");
-                    Constants.update_position = holder.getAdapterPosition();
-                    context.startActivityForResult(intent, Constants.READ_REQUEST_CODE);
-                } else {
-                    // Image already loaded, start the record activity
-                    Intent intent = new Intent(context, RecordActivity.class);
-                    intent.putExtra(Constants.EXTRA_POSITION, holder.getAdapterPosition());
-                    context.startActivity(intent);
-                }
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                Constants.update_position = holder.getAdapterPosition();
+                context.startActivityForResult(intent, Constants.VIDEO_READ_REQUEST_CODE);
             }
         });
 

@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import in.deepaksood.videocutntrim.R;
+import in.deepaksood.videocutntrim.utils.AudioRecyclerViewAdapter;
 import in.deepaksood.videocutntrim.utils.CommonUtils;
 import in.deepaksood.videocutntrim.utils.Constants;
-import in.deepaksood.videocutntrim.utils.RecyclerViewAdapter;
+import in.deepaksood.videocutntrim.utils.VideoRecyclerViewAdapter;
 
 public class CreateStory extends AppCompatActivity implements View.OnClickListener {
 
@@ -31,8 +32,12 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     private static final String TAG = CreateStory.class.getSimpleName();
 
     // RecyclerView to show video roll container
-    private RecyclerView recyclerView;
-    RecyclerViewAdapter recyclerViewAdapter;
+    private RecyclerView videoRecyclerView;
+    private VideoRecyclerViewAdapter videoRecyclerViewAdapter;
+
+    // RecyclerView to show audio roll container
+    private RecyclerView audioRecyclerView;
+    private AudioRecyclerViewAdapter audioRecyclerViewAdapter;
 
     private Button btnAddContainer;
     private Button btnDeleteContainer;
@@ -64,13 +69,19 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         // this is for populating recycler view
         Constants.imageUriList.add("");
         Constants.audioUriList.add("");
-        recyclerViewAdapter= new RecyclerViewAdapter(this);
+        videoRecyclerViewAdapter = new VideoRecyclerViewAdapter(this);
+        audioRecyclerViewAdapter = new AudioRecyclerViewAdapter(this);
 
         /* Recycler view initialization */
-        recyclerView = (RecyclerView) findViewById(R.id.rv_timeline);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setAdapter(recyclerViewAdapter);
+        videoRecyclerView = (RecyclerView) findViewById(R.id.rv_timeline_video);
+        LinearLayoutManager videoLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        videoRecyclerView.setLayoutManager(videoLinearLayoutManager);
+        videoRecyclerView.setAdapter(videoRecyclerViewAdapter);
+
+        audioRecyclerView = (RecyclerView) findViewById(R.id.rv_timeline_audio);
+        LinearLayoutManager audioLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        audioRecyclerView.setLayoutManager(audioLinearLayoutManager);
+        audioRecyclerView.setAdapter(audioRecyclerViewAdapter);
 
         btnAddContainer.setOnClickListener(this);
         btnDeleteContainer.setOnClickListener(this);
@@ -95,17 +106,34 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == Constants.READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            if(data != null) {
-                uri = data.getData();
+        if(resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case Constants.VIDEO_READ_REQUEST_CODE:
+                    if(data != null) {
+                        uri = data.getData();
 
-                /* Set the data returned from the FileManager intent to the position requested */
-                Log.i(TAG, "Uri: " + uri.toString());
-                Constants.imageUriList.set(Constants.update_position, uri.toString());
-                recyclerViewAdapter.notifyDataSetChanged();
+                        /* Set the data returned from the FileManager intent to the position requested */
+                        Log.i(TAG, "Uri Video: " + uri.toString());
+                        Constants.imageUriList.set(Constants.update_position, uri.toString());
+                        videoRecyclerViewAdapter.notifyDataSetChanged();
+                    }
+                    break;
+
+                case Constants.AUDIO_READ_REQUEST_CODE:
+                    if(data != null) {
+                        uri = data.getData();
+
+                        /* Set the data returned from the FileManager intent to the position requested */
+                        Log.i(TAG, "Uri Audio: " + uri.toString());
+                        Constants.audioUriList.set(Constants.update_position, uri.toString());
+                        audioRecyclerViewAdapter.notifyDataSetChanged();
+                    }
+                    break;
+
+                default:
+                    Toast.makeText(this, "invalid request", Toast.LENGTH_SHORT).show();
+                    Log.v(TAG,"requestCode: "+requestCode);
             }
-        } else {
-            Log.v(TAG,"requestCode: "+requestCode);
         }
     }
 
@@ -116,8 +144,11 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                 Toast.makeText(this, "add", Toast.LENGTH_SHORT).show();
                 Constants.imageUriList.add("");
                 Constants.audioUriList.add("");
-                recyclerViewAdapter.notifyItemInserted(Constants.imageUriList.size() - 1);
-                recyclerView.getLayoutManager().scrollToPosition(Constants.imageUriList.size() - 1);
+                videoRecyclerViewAdapter.notifyItemInserted(Constants.imageUriList.size() - 1);
+                videoRecyclerView.getLayoutManager().scrollToPosition(Constants.imageUriList.size() - 1);
+
+                audioRecyclerViewAdapter.notifyItemInserted(Constants.audioUriList.size() -1);
+                audioRecyclerView.getLayoutManager().scrollToPosition(Constants.audioUriList.size() -1);
                 break;
 
             case R.id.btn_delete_container:
@@ -125,7 +156,8 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                     Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show();
                     Constants.imageUriList.remove(Constants.imageUriList.size() - 1);
                     Constants.audioUriList.remove(Constants.audioUriList.size() - 1);
-                    recyclerViewAdapter.notifyDataSetChanged();
+                    videoRecyclerViewAdapter.notifyDataSetChanged();
+                    audioRecyclerViewAdapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(this, "Timeline empty", Toast.LENGTH_SHORT).show();
                 }

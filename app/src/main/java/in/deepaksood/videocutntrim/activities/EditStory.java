@@ -103,7 +103,7 @@ public class EditStory extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("video/mp4");
-                startActivityForResult(intent, Constants.READ_REQUEST_CODE);
+                startActivityForResult(intent, Constants.EDIT_READ_REQUEST_CODE);
             }
         });
 
@@ -138,7 +138,7 @@ public class EditStory extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == Constants.READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if(requestCode == Constants.EDIT_READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Log.v(TAG,"data: "+data);
             if(data != null) {
                 uri = data.getData();

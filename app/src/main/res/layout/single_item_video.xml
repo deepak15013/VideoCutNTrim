@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/iv_film_roll_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/film_roll_video"
+        android:contentDescription="@string/cd_iv_film_roll"/>
+
+    <ImageView
+        android:id="@+id/iv_container_video"
+        android:layout_width="148dp"
+        android:layout_height="98dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="27dp"
+        android:contentDescription="@string/cd_iv_container"/>
+
+</RelativeLayout>
