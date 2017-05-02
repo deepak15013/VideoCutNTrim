@@ -57,7 +57,7 @@ public class AudioRecyclerViewAdapter extends RecyclerView.Adapter<AudioRecycler
 
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
+                intent.setType("*/mp3");
                 Constants.update_position = holder.getAdapterPosition();
                 context.startActivityForResult(intent, Constants.AUDIO_READ_REQUEST_CODE);
             }

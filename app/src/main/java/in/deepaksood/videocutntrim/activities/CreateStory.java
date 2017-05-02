@@ -43,6 +43,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     private Button btnDeleteContainer;
     private Button btnCreate;
     private Button btnRecordAudio;
+    private Button btnPlayStory;
 
     // Uri for data
     private Uri uri;
@@ -56,6 +57,9 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     // holds the commands that are completed in a given moment
     int num_of_commands_completed = 0;
 
+    /* Store all intermediateFiles and delete after use */
+    ArrayList<String> intermediateFiles;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +69,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         btnDeleteContainer = (Button) findViewById(R.id.btn_delete_container);
         btnCreate = (Button) findViewById(R.id.btn_create);
         btnRecordAudio = (Button) findViewById(R.id.btn_record_audio);
+        btnPlayStory = (Button) findViewById(R.id.btn_play_story);
 
         // this is for populating recycler view
         Constants.imageUriList.add("");
@@ -87,10 +92,11 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
         btnDeleteContainer.setOnClickListener(this);
         btnCreate.setOnClickListener(this);
         btnRecordAudio.setOnClickListener(this);
+        btnPlayStory.setOnClickListener(this);
 
         /* initializing progress bar, used when ffmpeg commands are run */
         progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Cutting file");
+        progressDialog.setTitle("Merging files");
         progressDialog.setCancelable(false);
     }
 
@@ -172,6 +178,11 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                 Toast.makeText(this, "Record audio clip", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, RecordActivity.class);
                 startActivity(intent);
+                break;
+
+            case R.id.btn_play_story:
+                Toast.makeText(this, "Playing the created story", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
@@ -181,23 +192,26 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     private void createStory() {
         int numOfFrames = Constants.imageUriList.size();
 
-        boolean runCommand = true;
+        /* will hold the flags if the timeline is null or not */
+        boolean imageTimeline = true;
+        boolean audioTimeline = true;
         for(int i = 0; i < numOfFrames; i++) {
             if(Constants.imageUriList.get(i).equals("")) {
-                runCommand = false;
+                imageTimeline = false;
             }
             if(Constants.audioUriList.get(i).equals("")) {
-                runCommand = false;
+                audioTimeline = false;
             }
         }
 
-        if(runCommand) {
+        if(imageTimeline && audioTimeline) {
             max_num_of_commands = numOfFrames + 1;
             Log.d(TAG, "Max Commands to execute: " + max_num_of_commands);
 
-            ArrayList<String> intermediateFiles = new ArrayList<>();
+            intermediateFiles = new ArrayList<>();
 
             for(int i = 0; i < numOfFrames; i++) {
+                // both image and audio present create a image+audio merged video
                 String intermediateFilePath = Constants.directoryPath
                         + File.separator
                         + "intermediate_"
@@ -206,7 +220,10 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
 
                 String[] merge_command = {"-y", "-loop", "1",
                         "-i", CommonUtils.getInstance().getPath(this, Uri.parse(Constants.imageUriList.get(i))),
-                        "-i", Constants.audioUriList.get(i),
+                        "-i", CommonUtils.getInstance().getPath(this, Uri.parse(Constants.audioUriList.get(i))),
+                        "-acodec", "aac",
+                        "-vcodec", "mpeg4",
+                        "-f", "mpegts",
                         "-shortest", intermediateFilePath};
                 Log.d(TAG, "merge_command: " + Arrays.toString(merge_command));
 
@@ -232,7 +249,13 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
             Log.d(TAG, "join_command: " + Arrays.toString(join_command));
 
             execFFmpegBinary(join_command);
+        } else if(!imageTimeline && audioTimeline) {
+            // imageTimeline null and audioTimeline not null, create a merge audio mp3
+            Toast.makeText(this, "Creating merged audio file", Toast.LENGTH_SHORT).show();
+
+
         } else {
+            // both imageTimeline and audioTimeline null
             Toast.makeText(this, "Please fill the images and audios, and delete rest", Toast.LENGTH_SHORT).show();
         }
     }
@@ -250,6 +273,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                     @Override
                     public void onFailure(String s) {
                         Log.d(TAG, "FAILED with output : " + s);
+                        progressDialog.dismiss();
                     }
 
                     @Override
@@ -276,26 +300,19 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                         // progress dialog must be removed when all the commands are completed
                         if(num_of_commands_completed == max_num_of_commands) {
                             Log.d(TAG, "All commands processed");
+                            Toast.makeText(CreateStory.this, "Merged Successfully", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
 
-                            /*// All the intermediate file must be deleted, for next round of cutting
+                            btnPlayStory.setVisibility(View.VISIBLE);
+
+                            // All the intermediate file must be deleted, for next round of cutting
                             Log.d(TAG, "Deleting file in progress");
-                            File file = new File(cut1Location);
-                            if(file.exists()) {
-                                Log.d(TAG, ""+file.delete());
+                            for(int i = 0; i < intermediateFiles.size(); i++) {
+                                File file = new File(intermediateFiles.get(i));
+                                if(file.exists()) {
+                                    Log.d(TAG, "deleting intermediate files: "+file.delete());
+                                }
                             }
-                            file = new File(cut2Location);
-                            if(file.exists()) {
-                                Log.d(TAG, ""+file.delete());
-                            }
-                            file = new File(temp1Location);
-                            if(file.exists()) {
-                                Log.d(TAG, ""+file.delete());
-                            }
-                            file = new File(temp2Location);
-                            if(file.exists()) {
-                                Log.d(TAG, ""+file.delete());
-                            }*/
 
                         /* Convert the new file created to uri to play it in videoView using setVideoContainer() */
                             /*uri = Uri.fromFile(new File(cutVideoName));

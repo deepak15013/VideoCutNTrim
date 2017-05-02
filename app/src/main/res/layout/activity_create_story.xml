@@ -26,7 +26,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
         <Button
@@ -37,7 +37,7 @@
             android:text="@string/btn_add_container"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
-            android:layout_margin="20dp"/>
+            android:layout_margin="10dp"/>
 
         <Button
             android:id="@+id/btn_delete_container"
@@ -47,7 +47,7 @@
             android:text="@string/btn_delete_container"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
-            android:layout_margin="20dp"/>
+            android:layout_margin="10dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -63,7 +63,7 @@
             android:text="@string/btn_create"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
-            android:layout_margin="20dp"/>
+            android:layout_margin="10dp"/>
 
         <Button
             android:id="@+id/btn_record_audio"
@@ -73,8 +73,19 @@
             android:text="@string/btn_record"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
-            android:layout_margin="20dp"/>
+            android:layout_margin="10dp"/>
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_play_story"
+        android:layout_width="130dp"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimaryDark"
+        android:text="@string/btn_story_play"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold"
+        android:layout_margin="10dp"
+        android:visibility="invisible"/>
 
 </LinearLayout>

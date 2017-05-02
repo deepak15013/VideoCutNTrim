@@ -10,6 +10,7 @@
     <string name="btn_delete_container">Delete</string>
     <string name="btn_create">Create Story</string>
     <string name="btn_record">Record Audio</string>
+    <string name="btn_story_play">Play Story</string>
 
     <string name="btn_start_recording">Record</string>
     <string name="btn_stop_recording">Stop</string>
