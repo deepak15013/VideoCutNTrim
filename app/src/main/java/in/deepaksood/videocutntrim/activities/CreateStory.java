@@ -60,6 +60,9 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     /* Store all intermediateFiles and delete after use */
     ArrayList<String> intermediateFiles;
 
+    /* Video Created - true, Audio Created - false */
+    boolean videoCreated;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,7 +184,11 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                 break;
 
             case R.id.btn_play_story:
-                Toast.makeText(this, "Playing the created story", Toast.LENGTH_SHORT).show();
+                if(videoCreated) {
+                    Toast.makeText(this, "Playing the created video story", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Playing the created audio story", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }
@@ -190,7 +197,8 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
      * This will merge image and audio and then merge all videos
      */
     private void createStory() {
-        int numOfFrames = Constants.imageUriList.size();
+        int numOfFrames = Constants.audioUriList.size();
+        Log.d(TAG, "numOfFrames: " + numOfFrames);
 
         /* will hold the flags if the timeline is null or not */
         boolean imageTimeline = true;
@@ -239,7 +247,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
             }
             String storyVideoName = Constants.directoryPath
                     + File.separator
-                    + "Story_"
+                    + "Video_Story_"
                     + CommonUtils.getInstance().getTimeStamp()
                     + ".mp4";
 
@@ -248,11 +256,37 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
 
             Log.d(TAG, "join_command: " + Arrays.toString(join_command));
 
+            videoCreated = true;
+
             execFFmpegBinary(join_command);
         } else if(!imageTimeline && audioTimeline) {
             // imageTimeline null and audioTimeline not null, create a merge audio mp3
             Toast.makeText(this, "Creating merged audio file", Toast.LENGTH_SHORT).show();
 
+            max_num_of_commands = 1;
+            Log.d(TAG, "Max Commands to execute: " + max_num_of_commands);
+
+            String concat_command = "concat:";
+            for(int i = 0; i < numOfFrames; i++) {
+                concat_command += CommonUtils.getInstance().getPath(this, Uri.parse(Constants.audioUriList.get(i)));
+                if(i != numOfFrames-1) {
+                    concat_command += "|";
+                }
+            }
+            String storyVideoName = Constants.directoryPath
+                    + File.separator
+                    + "Audio_Story_"
+                    + CommonUtils.getInstance().getTimeStamp()
+                    + ".mp3";
+
+            String[] join_command = {"-y", "-i", concat_command,
+                    "-c", "copy", storyVideoName};
+
+            Log.d(TAG, "join_command: " + Arrays.toString(join_command));
+
+            videoCreated = false;
+
+            execFFmpegBinary(join_command);
 
         } else {
             // both imageTimeline and audioTimeline null
@@ -305,15 +339,17 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
 
                             btnPlayStory.setVisibility(View.VISIBLE);
 
-                            // All the intermediate file must be deleted, for next round of cutting
-                            Log.d(TAG, "Deleting file in progress");
-                            for(int i = 0; i < intermediateFiles.size(); i++) {
-                                File file = new File(intermediateFiles.get(i));
-                                if(file.exists()) {
-                                    Log.d(TAG, "deleting intermediate files: "+file.delete());
+                            if(videoCreated) {
+                                // All the intermediate file must be deleted, for next round of cutting only when video_story is created
+                                Log.d(TAG, "Deleting file in progress");
+                                for(int i = 0; i < intermediateFiles.size(); i++) {
+                                    File file = new File(intermediateFiles.get(i));
+                                    if(file.exists()) {
+                                        Log.d(TAG, "deleting intermediate files: "+file.delete());
+                                    }
                                 }
                             }
-
+                            num_of_commands_completed = 0;
                         /* Convert the new file created to uri to play it in videoView using setVideoContainer() */
                             /*uri = Uri.fromFile(new File(cutVideoName));
                             setVideoContainer();*/
