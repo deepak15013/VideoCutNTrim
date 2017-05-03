@@ -52,16 +52,19 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
     private ProgressDialog progressDialog;
 
     // holds the maximum number of commands that are goind to run
-    int max_num_of_commands = 0;
+    private int max_num_of_commands = 0;
 
     // holds the commands that are completed in a given moment
-    int num_of_commands_completed = 0;
+    private int num_of_commands_completed = 0;
 
     /* Store all intermediateFiles and delete after use */
-    ArrayList<String> intermediateFiles;
+    private ArrayList<String> intermediateFiles;
 
     /* Video Created - true, Audio Created - false */
-    boolean videoCreated;
+    private boolean videoCreated;
+
+    /* This will hold the path for the last story created */
+    private String createdStoryPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,6 +191,14 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                     Toast.makeText(this, "Playing the created video story", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Playing the created audio story", Toast.LENGTH_SHORT).show();
+                    if(createdStoryPath != null && !createdStoryPath.equals("")) {
+                        File file = new File(createdStoryPath);
+                        if(file.exists() && file.isFile()) {
+                            CommonUtils.getInstance().startAudioPlaying(Uri.parse(createdStoryPath).toString());
+                        } else {
+                            Toast.makeText(this, "Created story not found", Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 }
                 break;
         }
@@ -245,14 +256,14 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                     concat_command += "|";
                 }
             }
-            String storyVideoName = Constants.directoryPath
+            createdStoryPath = Constants.directoryPath
                     + File.separator
                     + "Video_Story_"
                     + CommonUtils.getInstance().getTimeStamp()
                     + ".mp4";
 
             String[] join_command = {"-y", "-i", concat_command,
-                        "-c", "copy", "-bsf:a", "aac_adtstoasc", storyVideoName};
+                        "-c", "copy", "-bsf:a", "aac_adtstoasc", createdStoryPath};
 
             Log.d(TAG, "join_command: " + Arrays.toString(join_command));
 
@@ -273,14 +284,14 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                     concat_command += "|";
                 }
             }
-            String storyVideoName = Constants.directoryPath
+            createdStoryPath = Constants.directoryPath
                     + File.separator
                     + "Audio_Story_"
                     + CommonUtils.getInstance().getTimeStamp()
                     + ".mp3";
 
             String[] join_command = {"-y", "-i", concat_command,
-                    "-c", "copy", storyVideoName};
+                    "-c", "copy", createdStoryPath};
 
             Log.d(TAG, "join_command: " + Arrays.toString(join_command));
 

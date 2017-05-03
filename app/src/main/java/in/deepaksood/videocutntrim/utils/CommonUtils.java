@@ -317,6 +317,7 @@ public class CommonUtils {
 
         if(mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
+            mediaPlayer.reset();
             Log.d(TAG, "media player stopped: " + mediaPlayer);
         }
 
