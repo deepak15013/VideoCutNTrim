@@ -382,6 +382,9 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
                 });
             } catch (FFmpegCommandAlreadyRunningException e) {
                 e.printStackTrace();
+                num_of_commands_completed = 0;
+                progressDialog.dismiss();
+                Toast.makeText(this, "FFMPEG Already running", Toast.LENGTH_SHORT).show();
             }
         } else {
             Toast.makeText(this, "FFMPEG not loaded", Toast.LENGTH_SHORT).show();
