@@ -27,6 +27,10 @@ public class Constants {
     // intent.putExtra for uri in VideoRecyclerViewAdapter
     public static final String EXTRA_POSITION = "EXTRA_POSITION";
 
+    // intent.putExtra from createStory to EditStory for video playing
+    public static final String EDIT_STORY = "EDIT_STORY";
+    public static final String STORY_URI = "STORY_URI";
+
     /* List holding images and audio */
     public static ArrayList<String> imageUriList = new ArrayList<>();
     public static ArrayList<String> audioUriList = new ArrayList<>();

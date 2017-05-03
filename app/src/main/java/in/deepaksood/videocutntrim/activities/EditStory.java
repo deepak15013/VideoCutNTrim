@@ -96,34 +96,55 @@ public class EditStory extends AppCompatActivity {
 
         btnCut = (Button) findViewById(R.id.btn_cut);
         btnBrowse = (Button) findViewById(R.id.btn_browse);
-        btnBrowse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "browse button clicked");
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("video/mp4");
-                startActivityForResult(intent, Constants.EDIT_READ_REQUEST_CODE);
-            }
-        });
 
-        btnCut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(uri != null && !uri.toString().contentEquals("")) {
-                    cutVideo(cutStartTimeSeconds, cutEndTimeSeconds);
+        boolean editStory = getIntent().getBooleanExtra(Constants.EDIT_STORY, true);
 
-                } else {
-                    Toast.makeText(EditStory.this, "please select a video first", Toast.LENGTH_SHORT).show();
+        if(editStory) {
+            btnBrowse.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "browse button clicked");
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("video/mp4");
+                    startActivityForResult(intent, Constants.EDIT_READ_REQUEST_CODE);
                 }
+            });
 
-            }
-        });
+            btnCut.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(uri != null && !uri.toString().contentEquals("")) {
+                        cutVideo(cutStartTimeSeconds, cutEndTimeSeconds);
+
+                    } else {
+                        Toast.makeText(EditStory.this, "please select a video first", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            });
 
         /* initializing progress bar, used when ffmpeg commands are run */
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Cutting file");
-        progressDialog.setCancelable(false);
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Cutting file");
+            progressDialog.setCancelable(false);
+        } else {
+            // only play the passed uri
+            btnCut.setVisibility(View.GONE);
+            btnBrowse.setVisibility(View.GONE);
+
+            Toast.makeText(this, "Playing video", Toast.LENGTH_SHORT).show();
+            String playStoryUri = getIntent().getStringExtra(Constants.STORY_URI);
+            Log.d(TAG, "playStoryUri: " + playStoryUri);
+            if(playStoryUri != null && !playStoryUri.equals("")) {
+                uri = Uri.parse(playStoryUri);
+                Log.i(TAG, "Uri: " + uri.toString());
+                setVideoContainer();
+            } else {
+                Log.e(TAG, "Uri is null for playing video " + playStoryUri);
+                Toast.makeText(this, "Something wrong", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     /**

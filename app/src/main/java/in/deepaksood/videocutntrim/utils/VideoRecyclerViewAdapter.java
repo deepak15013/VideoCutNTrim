@@ -58,7 +58,15 @@ public class VideoRecyclerViewAdapter extends RecyclerView.Adapter<VideoRecycler
 
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
+
+                // for for images
+                intent.setType("image/jpeg");
+
+                // for both images and videos
+                //intent.setType("*/*");
+                /* String[] mimetypes = {"image/jpeg", "video/mp4"};
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes); */
+
                 Constants.update_position = holder.getAdapterPosition();
                 context.startActivityForResult(intent, Constants.VIDEO_READ_REQUEST_CODE);
             }

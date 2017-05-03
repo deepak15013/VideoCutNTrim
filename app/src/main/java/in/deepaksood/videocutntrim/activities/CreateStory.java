@@ -137,6 +137,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
 
                         /* Set the data returned from the FileManager intent to the position requested */
                         Log.i(TAG, "Uri Audio: " + uri.toString());
+                        Log.i(TAG, "Pos: " + Constants.update_position);
                         Constants.audioUriList.set(Constants.update_position, uri.toString());
                         audioRecyclerViewAdapter.notifyDataSetChanged();
                     }
@@ -189,16 +190,29 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
             case R.id.btn_play_story:
                 if(videoCreated) {
                     Toast.makeText(this, "Playing the created video story", Toast.LENGTH_SHORT).show();
+                    Intent intentCreateStory = new Intent(this, EditStory.class);
+                    intentCreateStory.putExtra(Constants.EDIT_STORY, false);
+                    intentCreateStory.putExtra(Constants.STORY_URI, Uri.parse(createdStoryPath).toString());
+                    startActivity(intentCreateStory);
                 } else {
-                    Toast.makeText(this, "Playing the created audio story", Toast.LENGTH_SHORT).show();
-                    if(createdStoryPath != null && !createdStoryPath.equals("")) {
-                        File file = new File(createdStoryPath);
-                        if(file.exists() && file.isFile()) {
-                            CommonUtils.getInstance().startAudioPlaying(Uri.parse(createdStoryPath).toString());
-                        } else {
-                            Toast.makeText(this, "Created story not found", Toast.LENGTH_SHORT).show();
+                    if(btnPlayStory.getText().equals(getResources().getString(R.string.btn_story_play))) {
+                        Toast.makeText(this, "Playing the created audio story", Toast.LENGTH_SHORT).show();
+                        if(createdStoryPath != null && !createdStoryPath.equals("")) {
+                            File file = new File(createdStoryPath);
+                            if(file.exists() && file.isFile()) {
+                                CommonUtils.getInstance().startAudioPlaying(Uri.parse(createdStoryPath).toString());
+                            } else {
+                                Toast.makeText(this, "Created story not found", Toast.LENGTH_SHORT).show();
+                            }
                         }
+                        btnPlayStory.setText(getResources().getString(R.string.btn_stop_story_play));
+                    } else if(btnPlayStory.getText().equals(getResources().getString(R.string.btn_stop_story_play))) {
+                        btnPlayStory.setText(getResources().getString(R.string.btn_story_play));
+                        CommonUtils.getInstance().stopAudioPlaying();
+                    } else {
+                        Toast.makeText(this, "Invalid state", Toast.LENGTH_SHORT).show();
                     }
+
                 }
                 break;
         }
@@ -265,11 +279,10 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
             String[] join_command = {"-y", "-i", concat_command,
                         "-c", "copy", "-bsf:a", "aac_adtstoasc", createdStoryPath};
 
-            Log.d(TAG, "join_command: " + Arrays.toString(join_command));
-
-            videoCreated = true;
-
             execFFmpegBinary(join_command);
+
+            Log.d(TAG, "join_command for video: " + Arrays.toString(join_command));
+            videoCreated = true;
         } else if(!imageTimeline && audioTimeline) {
             // imageTimeline null and audioTimeline not null, create a merge audio mp3
             Toast.makeText(this, "Creating merged audio file", Toast.LENGTH_SHORT).show();
@@ -293,7 +306,7 @@ public class CreateStory extends AppCompatActivity implements View.OnClickListen
             String[] join_command = {"-y", "-i", concat_command,
                     "-c", "copy", createdStoryPath};
 
-            Log.d(TAG, "join_command: " + Arrays.toString(join_command));
+            Log.d(TAG, "join_command for audio: " + Arrays.toString(join_command));
 
             videoCreated = false;
 
