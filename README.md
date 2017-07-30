@@ -14,7 +14,6 @@ A Project for Community workers for trimming and joining videos using mobile dev
 ![alt text](https://github.com/deepak15013/VideoCutNTrim/blob/master/Screenshots/Screenshot_8.jpeg "Timeline")
 ![alt text](https://github.com/deepak15013/VideoCutNTrim/blob/master/Screenshots/Screenshot_9.jpeg "Timeline")
 ![alt text](https://github.com/deepak15013/VideoCutNTrim/blob/master/Screenshots/Screenshot_10.jpeg "Create Story pressed")
-![alt text](https://github.com/deepak15013/VideoCutNTrim/blob/master/Screenshots/Screenshot_10.jpeg "Processing")
 ![alt text](https://github.com/deepak15013/VideoCutNTrim/blob/master/Screenshots/Screenshot_11.jpeg "Processing")
 ![alt text](https://github.com/deepak15013/VideoCutNTrim/blob/master/Screenshots/Screenshot_12.jpeg "Timeline")
 ![alt text](https://github.com/deepak15013/VideoCutNTrim/blob/master/Screenshots/Screenshot_13.jpeg "Create Story processing finished")
